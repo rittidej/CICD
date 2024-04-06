@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  app:
+    build: app
+    command: npm run start
+    ports: [ '3000:3000' ]
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      [
+        #'./app/:/app/', 
+        '/app/node_modules/'
+      ]
+  db:
+    build: db
+    environment:
+      {
+        MYSQL_ROOT_PASSWORD: mypassword,
+        MYSQL_DATABASE: mydatabase
+      }
+    volumes: [ 'db_data:/var/lib/mysql' ]
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  adminer:
+    build: adminer
+    ports: [ '8081:8080' ]
+volumes: { db_data: {} }
